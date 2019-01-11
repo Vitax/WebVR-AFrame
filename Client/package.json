@@ -1,0 +1,45 @@
+{
+    "name": "aframe-project",
+    "version": "1.0.0",
+    "description": "This Web-Application will visualize Data in a Virtual Environment",
+    "main": "index.tsx",
+    "scripts": {
+        "build": "webpack --watch",
+        "styles": "node-sass --watch --include-path scss ./src/stylesheets/scss/main.scss ./src/stylesheets/css/main.css",
+        "server": "./node_modules/http-server/bin/http-server ./dist",
+        "start": "concurrently \"npm run build\" \"npm run styles\" \"npm run server\""
+    },
+    "keywords": [
+        "typescript",
+        "webvr",
+        "vr"
+    ],
+    "author": "Caglar Özel",
+    "license": "ISC",
+    "devDependencies": {
+        "@babel/core": "^7.2.2",
+        "@types/reactstrap": "^6.4.4",
+        "babel-loader": "^8.0.4",
+        "concurrently": "^4.1.0",
+        "css-loader": "^2.0.2",
+        "style-loader": "^0.23.1",
+        "http-server": "^0.11.1",
+        "ts-loader": "^5.3.2",
+        "typescript": "^3.2.2",
+        "webpack": "^4.28.2",
+        "webpack-cli": "^3.1.2"
+    },
+    "dependencies": {
+        "@types/aframe": "^0.8.0",
+        "@types/react": "^16.7.18",
+        "@types/react-dom": "^16.0.11",
+        "aframe": "^0.8.2",
+        "axios": "^0.18.0",
+        "bootstrap": "^4.2.1",
+        "node-sass": "^4.11.0",
+        "react": "^16.7.0",
+        "react-dom": "^16.7.0",
+        "reactstrap": "^7.0.2",
+        "sass": "^1.16.0"
+    }
+}
