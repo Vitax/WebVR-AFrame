@@ -2,14 +2,20 @@
  * Author: Caglar Özel
  */
 
+// Packages
+import * as d3_dsv from "d3-dsv";
+
+// Models
+import { DSVRowArray } from "../../components/home/configuration/models/DSVRowArray";
+
 export class AnalyseData {
-  constructor() {}
+    constructor() {}
 
-  public IsTsvFile(entries: string): boolean {
-    return false;
-  }
+    public parseTsvToJson(content: string): DSVRowArray<string> {
+        return d3_dsv.tsvParse(content);
+    }
 
-  public IsJsonFile(entries: Object): boolean {
-    return false;
-  }
+    public parseCsvToJson(content: string): DSVRowArray<string> {
+        return d3_dsv.csvParse(content);
+    }
 }

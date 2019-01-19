@@ -4,12 +4,26 @@
   "description": "Server to handle Request comming from AFrame-Project",
   "main": "server.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "nodemon ./dist/server.js",
+    "dev": "ts-node ./src/lib/server.ts",
+    "prod": "npm run build && npm run start"
   },
   "keywords": [
     "NodeJS",
     "Typescript"
   ],
   "author": "Caglar Özel",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.16.0",
+    "@types/mongoose": "^5.3.7",
+    "body-parser": "^1.18.3",
+    "nodemon": "^1.18.9"
+  },
+  "devDependencies": {
+    "express": "^4.16.4",
+    "mongoose": "^5.4.4",
+    "typescript": "^3.2.2"
+  }
 }
