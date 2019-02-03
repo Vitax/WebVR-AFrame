@@ -6,6 +6,7 @@
     "sourceMap": true,
     "outDir": "./dist",
     "noImplicitAny": false,
+    "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },

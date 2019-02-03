@@ -25,7 +25,7 @@ export class App {
     this.app.use(express.static(path.join(__dirname, "../../Client/dist")));
     this.app.use(bodyPaser.json());
 
-    this.app.get("/", (request: Request, response: Response) => {
+    this.app.get("/*", (request: Request, response: Response) => {
       response.sendFile(path.join(__dirname, "../../Client/dist/index.html"));
     });
   }

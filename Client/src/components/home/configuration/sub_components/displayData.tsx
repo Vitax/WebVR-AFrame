@@ -4,18 +4,19 @@
 
 // Packages
 import React, { Component, ChangeEvent } from "react";
-import { Row, Col, Button, Table } from "reactstrap";
+import { Row, Col, Table, Label, Input } from "reactstrap";
 
 // Custom classes
-import { AnalyseData } from "../../../../core/analytics/AnalyseData";
+import { ParseData } from "../../../../core/analytics/DatasetParser";
 
 // Services
-import { DatasetService } from "../../../../core/database/DatasetService";
 
 // Models
 import { DSVRowArray } from "../models/DSVRowArray";
 
-interface IShowDataProps {}
+interface IShowDataProps {
+    returnChosenDataset: (dataset: DSVRowArray<string>) => void;
+}
 
 interface IShowDataStates {
     url: string;
@@ -25,8 +26,7 @@ interface IShowDataStates {
 }
 
 export class ShowData extends Component<IShowDataProps, IShowDataStates> {
-    private readonly datasetService: DatasetService;
-    private readonly dataAnalyser: AnalyseData;
+    private readonly dataParser: ParseData;
 
     constructor(props: IShowDataProps, states: IShowDataStates) {
         super(props, states);
@@ -38,16 +38,7 @@ export class ShowData extends Component<IShowDataProps, IShowDataStates> {
             dataset: new DSVRowArray<string>(),
         };
 
-        this.datasetService = new DatasetService();
-        this.dataAnalyser = new AnalyseData();
-    }
-
-    private getDataset(): void {
-        this.datasetService.getDataset(this.state.url);
-    }
-
-    private setUrlString(event: ChangeEvent<HTMLInputElement>) {
-        this.setState({ url: event.target.value });
+        this.dataParser = new ParseData();
     }
 
     private fileChosen(event: ChangeEvent<HTMLInputElement>) {
@@ -74,19 +65,22 @@ export class ShowData extends Component<IShowDataProps, IShowDataStates> {
 
                     this.setState({ dataset: dataset, noValidFile: false }, () => {
                         this.renderDataSample();
+                        this.props.returnChosenDataset(this.state.dataset);
                     });
                 } else if (this.state.currentFile.type == "text/tab-separated-values") {
                     this.setState(
-                        { dataset: this.dataAnalyser.parseTsvToJson(content.toString()), noValidFile: false },
+                        { dataset: this.dataParser.parseTsvToJson(content.toString()), noValidFile: false },
                         () => {
                             this.renderDataSample();
+                            this.props.returnChosenDataset(this.state.dataset);
                         }
                     );
                 } else if (this.state.currentFile.type == "text/csv") {
                     this.setState(
-                        { dataset: this.dataAnalyser.parseCsvToJson(content.toString()), noValidFile: false },
+                        { dataset: this.dataParser.parseCsvToJson(content.toString()), noValidFile: false },
                         () => {
                             this.renderDataSample();
+                            this.props.returnChosenDataset(this.state.dataset);
                         }
                     );
                 } else {
@@ -115,28 +109,33 @@ export class ShowData extends Component<IShowDataProps, IShowDataStates> {
         });
 
         return (
-            <Table>
-                <thead>
-                    {this.state.dataset["columns"].map((elemName: string) => {
-                        return <th>{elemName}</th>;
-                    })}
-                </thead>
-                <tbody>
-                    <>{tableBody}</>
-                </tbody>
-            </Table>
+            <>
+                <Table>
+                    <thead>
+                        {this.state.dataset["columns"].map((elemName: string) => {
+                            return <th>{elemName}</th>;
+                        })}
+                    </thead>
+                    <tbody>
+                        <>{tableBody}</>
+                    </tbody>
+                </Table>
+                <span style={{ color: "#D50000AA" }}>
+                    ...Note that some Data may not be displayed if the Attributes are missing...
+                </span>
+            </>
         );
     }
 
     render() {
         return (
             <>
-                <Row className="text-center">
-                    <Col md={12} xs={12} className="p-1">
-                        <h4>Data from File</h4>
+                <Row className="text-center p-4">
+                    <Col md={2} xs={2} className="mt-auto">
+                        <Label>Select a File:</Label>
                     </Col>
-                    <Col md={12} xs={12} className="p-1">
-                        <input type="file" onChange={this.fileChosen.bind(this)} />
+                    <Col md={10} xs={10} className="p-1">
+                        <Input type="file" onChange={this.fileChosen.bind(this)} />
                     </Col>
                 </Row>
                 {this.state.dataset.length != 0 && (
@@ -144,7 +143,7 @@ export class ShowData extends Component<IShowDataProps, IShowDataStates> {
                         <hr />
                         <Row>
                             <Col md={12} xs={12}>
-                                <h4>Data Sample</h4>
+                                <h2 className="text-center">Data Sample</h2>
                                 {this.renderDataSample()}
                             </Col>
                         </Row>
