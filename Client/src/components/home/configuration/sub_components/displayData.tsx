@@ -53,7 +53,9 @@ export class ShowData extends Component<IShowDataProps, IShowDataStates> {
         reader.onloadend = () => {
             let content = reader.result;
             if (this.state.currentFile != null) {
-                if (this.state.currentFile.type == "application/json") {
+                let fileNameArray = this.state.currentFile.name.split(".");
+                let extension = fileNameArray[fileNameArray.length - 1];
+                if (this.state.currentFile.type == "application/json" || extension == "json") {
                     let json_data = JSON.parse(content.toString());
                     let dataset: DSVRowArray<string> = new DSVRowArray<string>();
 
@@ -67,7 +69,7 @@ export class ShowData extends Component<IShowDataProps, IShowDataStates> {
                         this.renderDataSample();
                         this.props.returnChosenDataset(this.state.dataset);
                     });
-                } else if (this.state.currentFile.type == "text/tab-separated-values") {
+                } else if (this.state.currentFile.type == "text/tab-separated-values" || extension == "tsv") {
                     this.setState(
                         { dataset: this.dataParser.parseTsvToJson(content.toString()), noValidFile: false },
                         () => {
@@ -75,7 +77,7 @@ export class ShowData extends Component<IShowDataProps, IShowDataStates> {
                             this.props.returnChosenDataset(this.state.dataset);
                         }
                     );
-                } else if (this.state.currentFile.type == "text/csv") {
+                } else if (this.state.currentFile.type == "text/csv" || extension == "csv") {
                     this.setState(
                         { dataset: this.dataParser.parseCsvToJson(content.toString()), noValidFile: false },
                         () => {

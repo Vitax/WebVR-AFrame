@@ -11,7 +11,7 @@ import { ShowData } from "./sub_components/displayData";
 import { SetupConfig } from "./sub_components/setupConfig";
 
 // Classes
-import { DataGraph, Graph } from "../../../core/data_visualization/DataGraph";
+import { DataGraph, Branch } from "../../../core/data_visualization/DataGraph";
 
 // Model
 import { DSVRowArray } from "./models/DSVRowArray";
@@ -23,7 +23,7 @@ interface IConfigurationStates {
     redirect: boolean;
     dataset: DSVRowArray<string>;
     graphConfigration: GraphConfiguration;
-    graph: DataGraph;
+    graph: {[key: string]: Array<Branch>};
 }
 
 export class Configuration extends Component<IConfigurationProps, IConfigurationStates> {
@@ -36,7 +36,7 @@ export class Configuration extends Component<IConfigurationProps, IConfiguration
             redirect: false,
             dataset: new DSVRowArray<string>(),
             graphConfigration: new GraphConfiguration(),
-            graph: new DataGraph(),
+            graph: {},
         };
 
         this.dataGraph = new DataGraph();
@@ -52,7 +52,7 @@ export class Configuration extends Component<IConfigurationProps, IConfiguration
 
     private createdGraphConfig(createdGraphConfiguration: GraphConfiguration) {
         this.setState({ graphConfigration: createdGraphConfiguration }, () => {
-            let graph = this.dataGraph.generateWorldDate(this.state.dataset, this.state.graphConfigration) as Graph;
+            let graph = this.dataGraph.generateWorldDate(this.state.dataset, this.state.graphConfigration);
             this.setState({ graph: graph, redirect: true });
         });
     }

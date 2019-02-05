@@ -31,6 +31,7 @@ export class SetupConfig extends Component<ISetupConfigProps, ISetupConfigStates
     }
 
     componentDidUpdate(prevProps: ISetupConfigProps) {
+        console.log(' in here: ', this.props);
         if (this.props.currentDataset.length != 0 && this.props.currentDataset != prevProps.currentDataset) {
             this.setState({ activeDataset: this.props.currentDataset }, () => {
                 if (this.state.activeDataset.columns.length > 2) {
