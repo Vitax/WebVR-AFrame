@@ -31,8 +31,7 @@ export class SetupConfig extends Component<ISetupConfigProps, ISetupConfigStates
     }
 
     componentDidUpdate(prevProps: ISetupConfigProps) {
-        console.log(' in here: ', this.props);
-        if (this.props.currentDataset.length != 0 && this.props.currentDataset != prevProps.currentDataset) {
+        if (this.props.currentDataset.length != 0 && Object.keys(this.props.currentDataset).length != Object.keys(prevProps.currentDataset).length) {
             this.setState({ activeDataset: this.props.currentDataset }, () => {
                 if (this.state.activeDataset.columns.length > 2) {
                     let copyOfGraphConfig = { ...this.state.graphConfiguration };
@@ -116,48 +115,48 @@ export class SetupConfig extends Component<ISetupConfigProps, ISetupConfigStates
         return this.state.activeDataset.length == 0 ? (
             <> </>
         ) : (
-            <>
-                <Form>
-                    <h2 className="text-center"> Configuration </h2>
-                    <FormGroup>
-                        <Label>Primary Attribute:</Label>
-                        <Input
-                            type="select"
-                            value={this.state.graphConfiguration.MainAttribute}
-                            onChange={this.setMainAttribute.bind(this)}
-                        >
-                            {this.displayOptions()}
-                        </Input>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label>Seconday Attribute:</Label>
-                        <Input
-                            type="select"
-                            value={this.state.graphConfiguration.SecondaryAttribute}
-                            onChange={this.setSecondaryAttribute.bind(this)}
-                        >
-                            {this.displayOptions()}
-                        </Input>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label>Information visualized in the seconday Nodes:</Label>
-                        <Input type="select" onChange={this.setVisualizationOptions.bind(this)} multiple>
-                            {this.displayVisualizationOptions()}
-                        </Input>
-                    </FormGroup>
-                    <FormGroup check>
-                        <h2 className="text-center">Expermental options!</h2>
-                        <Label>
-                            <Input type="checkbox" className="p-1" onChange={this.setGetImagesOption.bind(this)} />
-                            Try getting Images
+                <>
+                    <Form>
+                        <h2 className="text-center"> Configuration </h2>
+                        <FormGroup>
+                            <Label>Primary Attribute:</Label>
+                            <Input
+                                type="select"
+                                value={this.state.graphConfiguration.MainAttribute}
+                                onChange={this.setMainAttribute.bind(this)}
+                            >
+                                {this.displayOptions()}
+                            </Input>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Seconday Attribute:</Label>
+                            <Input
+                                type="select"
+                                value={this.state.graphConfiguration.SecondaryAttribute}
+                                onChange={this.setSecondaryAttribute.bind(this)}
+                            >
+                                {this.displayOptions()}
+                            </Input>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Information visualized in the seconday Nodes:</Label>
+                            <Input type="select" onChange={this.setVisualizationOptions.bind(this)} multiple>
+                                {this.displayVisualizationOptions()}
+                            </Input>
+                        </FormGroup>
+                        <FormGroup check>
+                            <h2 className="text-center">Expermental options!</h2>
+                            <Label>
+                                <Input type="checkbox" className="p-1" onChange={this.setGetImagesOption.bind(this)} />
+                                Try getting Images
                         </Label>
-                    </FormGroup>
-                    <hr />
-                    <Button outline size="sm" className="p-2" onClick={this.returnConfiguration.bind(this)}>
-                        Create VR World
+                        </FormGroup>
+                        <hr />
+                        <Button outline size="sm" className="p-2" onClick={this.returnConfiguration.bind(this)}>
+                            Create VR World
                     </Button>
-                </Form>
-            </>
-        );
+                    </Form>
+                </>
+            );
     }
 }

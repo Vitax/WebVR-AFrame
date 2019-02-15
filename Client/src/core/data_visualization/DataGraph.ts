@@ -9,9 +9,9 @@ import { DSVRowArray } from "../../components/home/configuration/models/DSVRowAr
 // Represents a Branch in Graph
 export class Branch {
     Name: string;
-    Information: Array<string>;
+    Information: {[key: string]: string};
 
-    constructor(name: string, information: Array<string>) {
+    constructor(name: string, information: {}) {
         this.Name = name;
         this.Information = information;
     }
@@ -28,7 +28,7 @@ export class DataGraph {
         if (this.Roots[root] == null) this.Roots[root] = new Array<Branch>();
     }
 
-    private createBranch(name: string, information: Array<string>) {
+    private createBranch(name: string, information: {[key: string]: string}) {
         return new Branch(name, information);
     }
 
@@ -36,18 +36,16 @@ export class DataGraph {
         if (!this.Roots[root].includes(branch)) this.Roots[root].push(branch);
     }
 
-    public generateWorldDate(
-        dataset: DSVRowArray<string>,
-        graphConfiguration: GraphConfiguration
-    ): { [key: string]: Array<Branch> } {
+    public generateWorldDate( dataset: DSVRowArray<string>, graphConfiguration: GraphConfiguration): { [key: string]: Array<Branch> } {
         let graph = new DataGraph();
 
         dataset.forEach(entry => {
             graph.createRoot(entry[graphConfiguration.MainAttribute]);
 
-            let branchInformation = new Array<string>();
+            let branchInformation = {};
+
             for (let i = 0; i < graphConfiguration.VisualInformation.length; ++i) {
-                branchInformation.push(entry[graphConfiguration.VisualInformation[i]]);
+                branchInformation[graphConfiguration.VisualInformation[i]]= entry[graphConfiguration.VisualInformation[i]];
             }
 
             let branch = graph.createBranch(entry[graphConfiguration.SecondaryAttribute], branchInformation);

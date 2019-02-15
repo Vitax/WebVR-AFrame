@@ -17,13 +17,13 @@ import { DataGraph, Branch } from "../../../core/data_visualization/DataGraph";
 import { DSVRowArray } from "./models/DSVRowArray";
 import { GraphConfiguration } from "./models/GraphConfig";
 
-interface IConfigurationProps {}
+interface IConfigurationProps { }
 
 interface IConfigurationStates {
     redirect: boolean;
     dataset: DSVRowArray<string>;
     graphConfigration: GraphConfiguration;
-    graph: {[key: string]: Array<Branch>};
+    graph: { [key: string]: Array<Branch> };
 }
 
 export class Configuration extends Component<IConfigurationProps, IConfigurationStates> {

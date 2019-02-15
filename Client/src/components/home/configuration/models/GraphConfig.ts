@@ -2,6 +2,7 @@
  * Author: Caglar Özel
  */
 
+
 export class GraphConfiguration {
     public MainAttribute: string;
     public SecondaryAttribute: string;

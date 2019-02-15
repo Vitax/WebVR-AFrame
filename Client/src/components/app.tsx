@@ -51,7 +51,7 @@ export class App extends Component<IAppProps, IAppStates> {
                             </Col>
                         </Row>
                         <Row >
-                            <Col className="content_body m-0 p-0" md={12} xs={12}>
+                            <Col className="content_body" md={12} xs={12}>
                                 <Route exact path="/" component={Home} />
                                 <Route path="/vr-scene" component={VRScene} />
                                 <Route path="/configuration" component={Configuration} />

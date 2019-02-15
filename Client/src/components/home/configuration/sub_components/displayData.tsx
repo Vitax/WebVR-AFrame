@@ -9,8 +9,6 @@ import { Row, Col, Table, Label, Input } from "reactstrap";
 // Custom classes
 import { ParseData } from "../../../../core/analytics/DatasetParser";
 
-// Services
-
 // Models
 import { DSVRowArray } from "../models/DSVRowArray";
 
