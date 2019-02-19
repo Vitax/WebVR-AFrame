@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2016",
+    "target": "es6",
     "module": "commonjs",
     "jsx": "react",
     "sourceMap": true,
@@ -8,13 +8,17 @@
     "noImplicitAny": false,
     "noUnusedLocals": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "lib": [
+      "dom",
+      "es2017"
+    ]
   },
   "include": [
-      "src/**/*"
+    "node_modules/@types/**/*.d.ts",
+    "src/**/*.ts",
   ],
-  "excclude": [
-      "node_modules",
-      "**/*.spec.ts"
+  "exclude": [
+    "node_modules",
   ]
 }
