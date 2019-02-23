@@ -1,19 +1,22 @@
 export default AFRAME.registerComponent('click-listener', {
+    schema: {
+        default: "",
+    },
     init: function () {
-        function buttonPressed(button: any, hold: boolean): boolean {
+        let cachedButton: any;
+        let camera = document.getElementById("cameraContainer");
+
+        this.buttonPressed = (button: any, hold: boolean): boolean => {
             let buttonState: boolean = false;
 
             if (hold) {
-                if (button.pressed) {
+                if (button.pressed)
                     buttonState = true;
-                }
             } else {
                 if (button.pressed && cachedButton != button) {
                     cachedButton = button;
                     buttonState = true;
-                }
-
-                if (!button.pressed && cachedButton == button) {
+                } else if (!button.pressed && cachedButton == button) {
                     cachedButton = null;
                 }
             }
@@ -21,55 +24,50 @@ export default AFRAME.registerComponent('click-listener', {
             return buttonState;
         }
 
-        let that = this;
-        let cachedButton: any;
-        let camera = document.getElementById("cameraContainer");
+        this.toggleVisible = (el: HTMLElement) => {
+            this.el.getAttribute('color') === 'green'
+                ? this.el.setAttribute('color', 'yellow')
+                : this.el.setAttribute('color', 'green');
 
-        function toggleVisible(el: HTMLElement) {
             let branchElement = document.getElementById("branch".concat(el.id));
-            branchElement.getAttribute('color') === 'green' ? branchElement.setAttribute('color', 'yellow') : branchElement.setAttribute('color', 'green');
-            branchElement.setAttribute('visible', (!branchElement.getAttribute('visible')).toString())
 
+            branchElement.setAttribute('visible', (!Boolean(branchElement.getAttribute('visible'))).toString())
             branchElement.childNodes.forEach(branchNode => {
                 if ((branchNode as any).getAttribute("color") == "red" && branchNode.parentElement == branchElement) {
                     (branchNode as any).setAttribute("color", "orange");
                     document.getElementById('infoInterface') && camera.removeChild(document.getElementById("infoInterface"));
-                    return;
                 }
             })
         }
 
-        function handleInput() {
-            if (!that.gamepad) return;
+        this.el.addEventListener('mousedown', () => {
+            this.toggleVisible(this.target);
+        })
 
-            if (buttonPressed(that.gamepad.buttons[0], false) && that.targetElement != null) {
-                toggleVisible(that.targetElement.srcElement);
-            }
+        this.el.addEventListener('raycaster-intersected', (element) => {
+            this.target = element.target;
+        })
 
-            requestAnimationFrame(handleInput);
+        this.el.addEventListener('raycaster-intersected-cleared', () => {
+            this.target = null;
+        })
+
+        window.addEventListener('gamepadconnected', () => {
+            let gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads() : []);
+            this.gamepad = gamepads[0];
+        })
+
+        window.addEventListener('gamepaddisconnected', () => {
+            this.gamepad = null;
+        })
+    },
+    tick: function () {
+        if ((this.gamepad === undefined || this.gamepad === null) || (this.target === null || this.target === undefined)) {
+            return;
         }
 
-
-        window.addEventListener('gamepadconnected', function (event) {
-            let gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads() : []);
-            that.gamepad = gamepads[0];
-            window.setTimeout(handleInput, 1000 / 60)
-        })
-
-        window.addEventListener('gamepaddisconnected', function (event) {
-            cancelAnimationFrame(handleInput.bind(this));
-        })
-
-        this.el.addEventListener('raycaster-intersected', function (element) {
-            that.targetElement = element;
-        })
-
-        this.el.addEventListener('raycaster-intersected-cleared', function () {
-            that.targetElement = null;
-        })
-
-        this.el.addEventListener('mousedown', function () {
-            toggleVisible(that.el);
-        })
+        if (this.buttonPressed(this.gamepad.buttons[0], false)) {
+            this.toggleVisible(this.target);
+        }
     }
 })

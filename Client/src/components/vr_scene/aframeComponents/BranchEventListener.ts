@@ -1,11 +1,12 @@
 export default AFRAME.registerComponent('branch-listener', {
+    schema: {
+        default: "",
+    },
     init: function () {
-        let el = this.el;
-        let that = this;
         let cachedButton: any;
-        let camera = document.getElementById("cameraContainer");
+        this.camera = document.getElementById("cameraContainer");
 
-        function buttonPressed(button: any, hold: boolean): boolean {
+        this.buttonPressed = (button: any, hold: boolean): boolean => {
             let buttonState: boolean = false;
 
             if (hold) {
@@ -14,11 +15,12 @@ export default AFRAME.registerComponent('branch-listener', {
                 }
             } else {
                 if (button.pressed && cachedButton != button) {
-                    cachedButton = button;
                     buttonState = true;
+                    cachedButton = button;
                 }
 
                 if (!button.pressed && cachedButton == button) {
+                    buttonState = false;
                     cachedButton = null;
                 }
             }
@@ -26,7 +28,7 @@ export default AFRAME.registerComponent('branch-listener', {
             return buttonState;
         }
 
-        function appendInterface(camera: HTMLElement, el: HTMLElement) {
+        this.appendInterface = (el: HTMLElement) => {
             let infoInterface = document.createElement("a-entity");
             infoInterface.setAttribute("id", "infoInterface")
             infoInterface.setAttribute("position", "0 -0.5 -2");
@@ -41,103 +43,87 @@ export default AFRAME.registerComponent('branch-listener', {
                 if (branchInformation.hasOwnProperty(key)) {
                     let element = branchInformation[key];
                     // create information text here
-                    information = information.concat(key.toUpperCase()).concat(" : ").concat(element).concat("\n");
+                    information = information.concat(key.toUpperCase()).concat(" : \t").concat(element).concat("\n");
                 }
             }
-
             infoInterface.setAttribute("text", "color: #FBF1C7; value: " + information);
-            camera.appendChild(infoInterface);
+
+            this.camera.appendChild(infoInterface);
             el.setAttribute("color", "red");
+
+            this.activeElement = el;
         }
 
-        function handleInput() {
-            if (!that.gamepad) return;
+        this.el.addEventListener('mousedown', () => {
+        })
 
-            if (buttonPressed(that.gamepad.buttons[0], false) && that.targetElement != null) {
-                if (el.parentElement.getAttribute('visible') == true) {
-                    let activeElem: HTMLElement;
-                    let interfaceElem = document.getElementById("infoInterface");
+        this.el.addEventListener('raycaster-intersected', (element) => {
+            this.target = element.target;
+        })
 
-                    el.parentNode.childNodes.forEach(branchNode => {
-                        branchNode.getAttribute("color") == "red" && (activeElem = branchNode)
-                    })
+        this.el.addEventListener('raycaster-intersected-cleared', () => {
+            this.target = null;
+        })
 
-                    if (!interfaceElem) {
-                        appendInterface(camera, el);
-                    }
-
-                    if (activeElem && interfaceElem && el != activeElem) {
-                        activeElem.setAttribute("color", "orange");
-                        camera.removeChild(interfaceElem);
-
-                        appendInterface(camera, el);
-                    }
-                }
-            }
-
-            if (buttonPressed(that.gamepad.buttons[1], false)) {
-                let activeElem: HTMLElement;
-                let interfaceElem = document.getElementById("infoInterface");
-
-                el.parentNode.childNodes.forEach(branchNode => {
-                    (branchNode as any).getAttribute("color") == "red" && (activeElem = branchNode)
-                })
-
-                if (activeElem && interfaceElem && el.innerHTML == activeElem.innerHTML) {
-                    el.setAttribute("color", "orange");
-                    camera.removeChild(interfaceElem);
-                }
-            }
-
-            requestAnimationFrame(handleInput);
-        }
-
-
-        window.addEventListener('gamepadconnected', function (event) {
+        window.addEventListener('gamepadconnected', () => {
             let gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads() : []);
-            that.gamepad = gamepads[0];
-
-            handleInput();
+            this.gamepad = gamepads[0];
         })
 
-        window.addEventListener('gamepaddisconnected', function (event) {
-            cancelAnimationFrame(handleInput.bind(this));
-        })
-
-        this.el.addEventListener('raycaster-intersected', function (element) {
-            that.targetElement = element;
-        })
-
-        this.el.addEventListener('raycaster-intersected-cleared', function () {
-            that.targetElement = null;
-        })
-
-        el.addEventListener('mousedown', function () {
-            if (el.parentElement.getAttribute('visible') == true) {
-                let activeElem: HTMLElement;
-                let interfaceElem = document.getElementById("infoInterface");
-
-                el.parentNode.childNodes.forEach(branchNode => {
-                    (branchNode as any).getAttribute("color") == "red" && (activeElem = branchNode)
-                })
-
-                if (!interfaceElem) {
-                    appendInterface(camera, el);
-                }
-
-                if (activeElem && interfaceElem && el.innerHTML == activeElem.innerHTML) {
-                    el.setAttribute("color", "orange");
-                    camera.removeChild(interfaceElem);
-                }
-
-                if (activeElem && interfaceElem && el != activeElem) {
-                    activeElem.setAttribute("color", "orange");
-                    camera.removeChild(interfaceElem);
-
-                    appendInterface(camera, el);
-                }
-
-            }
+        window.addEventListener('gamepaddisconnected', () => {
+            this.gamepad = null;
         })
     },
+    tick: function () {
+        if ((this.gamepad === null || this.gamepad === undefined) || (this.target === undefined || this.target === null)) {
+            return;
+        }
+
+        if (this.buttonPressed(this.gamepad.buttons[0], false)) {
+            console.log('branch button pressed')
+            const interfaceElem = document.getElementById("infoInterface");
+
+            if (!interfaceElem) {
+                this.appendInterface(this.target);
+            }
+
+            if (interfaceElem && this.activeElement && this.target.innerHTML === this.activeElement.innerHTML) {
+                this.target.setAttribute("color", "orange");
+                this.camera.removeChild(interfaceElem);
+            }
+        }
+        //     if (targetElement && targetElement.parentElement.getAttribute('visible') == true) {
+        //         let interfaceElem = document.getElementById("infoInterface");
+
+        //         targetElement.parentNode.childNodes.forEach(branchNode => {
+        //             branchNode.getAttribute("color") == "red" && (activeElem = branchNode)
+        //         })
+
+        //         if (!interfaceElem) {
+        //             appendInterface(camera, targetElement);
+        //         }
+
+        //         if (activeElem && interfaceElem && targetElement.innerHTML != activeElem.innerHTML) {
+        //             activeElem.setAttribute("color", "orange");
+        //             camera.removeChild(interfaceElem);
+
+        //             appendInterface(camera, targetElement);
+        //         }
+        //     }
+        // }
+
+        // if (buttonPressed(gamepad.buttons[1], false)) {
+        //     let interfaceElem = document.getElementById("infoInterface");
+
+        //     if (targetElement != null && targetElement.parentNode != null)
+        //         targetElement.parentNode.childNodes.forEach(branchNode => {
+        //             branchNode.getAttribute("color") === "red" && (activeElem = branchNode)
+        //         })
+
+        //     if (activeElem && interfaceElem) {
+        //         activeElem.setAttribute("color", "orange");
+        //         camera.removeChild(interfaceElem);
+        //     }
+        // }
+    }
 })

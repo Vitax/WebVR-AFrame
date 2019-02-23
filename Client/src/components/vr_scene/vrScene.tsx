@@ -43,9 +43,9 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
     }
 
     componentWillMount() {
+        this.registerAFrameEventListeners();
         if (this.props.location.state != undefined && this.props.location.state.graph != undefined) {
-            this.registerAFrameEventListeners();
-            this.generateWorld(this.props.location.state.graph);
+            this.generateWorld();
         }
     }
 
@@ -56,14 +56,14 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
     // Register AFrame Components and Event Listeners
     private registerAFrameEventListeners() {
         rootListener;
-        branchListener;
+        // branchListener;
         this.customGamepadControls();
     }
 
     // Delete AFrame Components and Event Listeners
     private unregisterAFrameEventListeners() {
         delete AFRAME.components['click-listener'];
-        delete AFRAME.components['branch-listener'];
+        // delete AFRAME.components['branch-listener'];
         delete AFRAME.components['custom-controls'];
     }
 
@@ -71,14 +71,16 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         let component = this;
 
         AFRAME.registerComponent('custom-controls', {
+            schema: {
+                default: "",
+            },
             init: function () {
-                let that = this;
                 let cachedButton: any;
-                let camera: any = document.getElementById("cameraContainer");
-                let position = new THREE.Vector3();
-                let rotation = new THREE.Euler();
+                this.camera = document.getElementById("cameraContainer");
+                this.position = new THREE.Vector3();
+                this.rotation = new THREE.Euler();
 
-                function buttonPressed(button: any, hold: boolean): boolean {
+                this.buttonPressed = (button: any, hold: boolean): boolean => {
                     let buttonState: boolean = false;
 
                     if (hold) {
@@ -100,86 +102,79 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                 }
 
 
-                function moveCamera(x: number, y: number, z: number) {
-                    setTimeout(() => {
-                        camera.object3D.getWorldPosition(position);
+                this.moveCamera = (x: number, y: number, z: number) => {
+                    this.camera.object3D.getWorldPosition(this.position);
 
-                        position.x += x;
-                        position.y += y;
-                        position.z += z;
+                    this.position.x += x;
+                    this.position.y += y;
+                    this.position.z += z;
 
-                        camera.setAttribute('position', position)
-                    }, 1000 / 30);
+                    this.camera.setAttribute('position', this.position)
                 }
 
-                function rotateCamera(x: number, y: number, z: number) {
-                    setTimeout(() => {
-                        camera.object3D.getWorldRotation(rotation)
+                this.rotateCamera = (x: number, y: number, z: number) => {
+                    this.camera.object3D.getWorldRotation(this.rotation)
 
-                        rotation.x += x;
-                        rotation.y += y;
-                        rotation.z += z;
+                    this.rotation.x += x;
+                    this.rotation.y += y;
+                    this.rotation.z += z;
 
-                        camera.setAttribute('rotation', rotation);
-                    }, 1000 / 30)
+                    this.camera.setAttribute('rotation', this.rotation);
                 }
 
-                function handleInput() {
-                    if (!that.gamepad) return;
-
-                    /** left stick: x axes and camera x axes */
-                    if (that.gamepad.axes[0].toFixed(3) > 0.2) moveCamera(that.gamepad.axes[0], 0, 0);
-                    if (that.gamepad.axes[0].toFixed(3) < -0.2) moveCamera(that.gamepad.axes[0], 0, 0);
-                    /** camera y axes */
-                    if (buttonPressed(that.gamepad.buttons[5], true)) moveCamera(0, 0.3, 0);
-                    if (buttonPressed(that.gamepad.buttons[4], true)) moveCamera(0, -0.3, 0);
-                    /** left stick: z axes & camera z axes */
-                    if (that.gamepad.axes[1].toFixed(3) > 0.2) moveCamera(0, 0, that.gamepad.axes[1]);
-                    if (that.gamepad.axes[1].toFixed(3) < -0.2) moveCamera(0, 0, that.gamepad.axes[1]);
-
-                    /** right stick: x axes */
-                    if (that.gamepad.axes[2] > 0.2) rotateCamera(0, that.gamepad.axes[2], 0)
-                    if (that.gamepad.axes[2] < 0.2) rotateCamera(0, that.gamepad.axes[2], 0)
-                    /** right stick: z axes */
-                    if (that.gamepad.axes[3] > 0.2) rotateCamera(0, 0, that.gamepad.axes[3])
-                    if (that.gamepad.axes[3] < 0.2) rotateCamera(0, 0, that.gamepad.axes[3])
-
-                    // change scenes
-                    if (buttonPressed(that.gamepad.buttons[15], false)) {
-                        let currentRootIndex = component.state.rootIndex;
-                        if (currentRootIndex < component.state.possibleChunks) currentRootIndex++;
-
-                        component.setState({ rootIndex: currentRootIndex }, () => {
-                            component.generateWorld(component.props.location.state.graph);
-                        });
-                    }
-
-                    if (buttonPressed(that.gamepad.buttons[14], false)) {
-                        let currentRootIndex = component.state.rootIndex;
-                        if (currentRootIndex > 0) currentRootIndex--;
-
-                        component.setState({ rootIndex: currentRootIndex }, () => {
-                            component.generateWorld(component.props.location.state.graph);
-                        });
-                    }
-
-                    requestAnimationFrame(handleInput);
-                }
-
-                window.addEventListener('gamepadconnected', function (event) {
-                    let gamepads = navigator.getGamepads ?
-                        navigator.getGamepads() :
-                        ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads() : []);
-                    that.gamepad = gamepads[0];
-
-                    handleInput();
+                window.addEventListener('gamepadconnected', () => {
+                    let gamepads = navigator.getGamepads ? navigator.getGamepads() : ((navigator as any).webkitGetGamepads ? (navigator as any).webkitGetGamepads() : []);
+                    this.gamepad = gamepads[0];
                 })
+
+                window.addEventListener('gamepaddisconnected', () => {
+                    this.gamepad = null;
+                })
+            },
+            tick: function () {
+                if (!this.gamepad) return;
+
+                /** left stick: x axes and camera x axes */
+                if (this.gamepad.axes[0].toFixed(3) > 0.2) this.moveCamera(this.gamepad.axes[0], 0, 0);
+                if (this.gamepad.axes[0].toFixed(3) < -0.2) this.moveCamera(this.gamepad.axes[0], 0, 0);
+                /** camera y axes */
+                if (this.buttonPressed(this.gamepad.buttons[5], true)) this.moveCamera(0, 0.3, 0);
+                if (this.buttonPressed(this.gamepad.buttons[4], true)) this.moveCamera(0, -0.3, 0);
+                /** left stick: z axes & camera z axes */
+                if (this.gamepad.axes[1].toFixed(3) > 0.2) this.moveCamera(0, 0, this.gamepad.axes[1]);
+                if (this.gamepad.axes[1].toFixed(3) < -0.2) this.moveCamera(0, 0, this.gamepad.axes[1]);
+
+                /** right stick: x axes */
+                if (this.gamepad.axes[2] > 0.2) this.rotateCamera(0, this.gamepad.axes[2], 0)
+                if (this.gamepad.axes[2] < 0.2) this.rotateCamera(0, this.gamepad.axes[2], 0)
+                /** right stick: z axes */
+                if (this.gamepad.axes[3] > 0.2) this.rotateCamera(0, 0, this.gamepad.axes[3])
+                if (this.gamepad.axes[3] < 0.2) this.rotateCamera(0, 0, this.gamepad.axes[3])
+
+                // change scenes
+                if (this.buttonPressed(this.gamepad.buttons[15], false)) {
+                    let currentRootIndex = component.state.rootIndex;
+                    if ((currentRootIndex + 1) < component.state.possibleChunks) currentRootIndex++;
+
+                    component.setState({ rootIndex: currentRootIndex }, () => {
+                        component.generateWorld();
+                    });
+                }
+
+                if (this.buttonPressed(this.gamepad.buttons[14], false)) {
+                    let currentRootIndex = component.state.rootIndex;
+                    if (currentRootIndex > 0) currentRootIndex--;
+
+                    component.setState({ rootIndex: currentRootIndex }, () => {
+                        component.generateWorld();
+                    });
+                }
             }
         })
     }
 
     private calculateRootPosition(index: number, length: number, dataGraph: { [key: string]: Array<Branch> }) {
-        let radius = length * 1.2;
+        let radius = length * 1.8;
 
         let y = 2;
         let x = radius * Math.cos((index / length) * 2 * Math.PI);
@@ -197,6 +192,20 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         return x + " " + y + " " + z;
     }
 
+    private addBranchInformation(branchInformation) {
+        let information = "";
+        for (let key in branchInformation) {
+            if (branchInformation.hasOwnProperty(key)) {
+                let element = branchInformation[key];
+
+                // create information text here
+                information = information.concat(key.toUpperCase()).concat(" : ").concat(element).concat("\n");
+            }
+        }
+
+        return <a-text value={information} color="#282828" align="center" position="0 -2 0" look-at="#cameraContainer"></a-text>
+    }
+
     private generateBranchObjects(branches: Array<Branch>) {
         let branchContent = new Array<any>();
 
@@ -210,7 +219,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         for (i = 0, j = branches.length; i < j; i += chunkSize) {
             chunkArray = branches.slice(i, i + chunkSize);
             iterator = 0;
-            y += 4;
+            y += 5;
 
             chunkArray.map(branch => {
                 branchContent.push(
@@ -218,9 +227,10 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                         position={this.calculateBranchPosition(iterator, chunkArray.length, y)}
                         color="orange"
                         branchinformation={JSON.stringify(branch.Information)}
-                        branch-listener=""
+                        branch-listener
                     >
-                        <a-text value={branch.Name} align="center" look-at="#cameraContainer" position="0 1.7 0" scale="1.5 1.5 1" color="#282828" />
+                        <a-text value={branch.Name} align="center" look-at="#cameraContainer" position=" 1.7 0" scale="1.5 1.5 1" color="#282828" />
+                        {this.addBranchInformation(branch.Information)}
                     </a-sphere >
                 )
                 iterator++;
@@ -230,35 +240,27 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         return branchContent;
     }
 
-    private generateWorld(dataGraph: { [key: string]: Array<Branch> }) {
+    private generateWorld() {
+        let dataGraph = this.props.location.state.graph;
+        console.log(dataGraph);
         this.setState({ possibleChunks: Math.ceil(Object.keys(dataGraph).length / this.rootChunkSize) })
 
-        let chunkSize = 25,
-            chunkDataGraph: { [key: string]: Array<Branch> } = {};
+        let chunkDataGraph: { [key: string]: Array<Branch> } = {};
 
         let keyCounter = 0;
         let sceneContent = [];
 
-        if (this.state.rootIndex == 0) {
-            chunkDataGraph = Object.keys(dataGraph).slice(this.state.rootIndex, this.state.rootIndex + chunkSize).reduce((result, key) => {
-                result[key] = dataGraph[key];
+        chunkDataGraph = Object.keys(dataGraph).slice((this.state.rootIndex * this.rootChunkSize), (this.state.rootIndex * this.rootChunkSize) + this.rootChunkSize).reduce((result, key) => {
+            result[key] = dataGraph[key];
 
-                return result;
-            }, {});
-        } else {
-            let currentPosition = this.state.rootIndex + chunkSize;
-            chunkDataGraph = Object.keys(dataGraph).slice(currentPosition, currentPosition + chunkSize).reduce((result, key) => {
-                result[key] = dataGraph[key];
-
-                return result;
-            }, {});
-        }
+            return result;
+        }, {});
 
 
         for (let key in chunkDataGraph) {
             sceneContent.push(
                 <>
-                    <a-cylinder id={keyCounter} position={this.calculateRootPosition(keyCounter, Object.entries(chunkDataGraph).length, chunkDataGraph)} color="green" click-listener="" >
+                    <a-cylinder id={keyCounter} position={this.calculateRootPosition(keyCounter, Object.entries(chunkDataGraph).length, chunkDataGraph)} color="green" click-listener >
                         <a-text value={key} align="center" color="#282828" look-at="#cameraContainer" position="0 1.1 0" height="2" />
                     </a-cylinder>
                     <a-entity color="grey" position={this.calculateRootPosition(keyCounter, Object.keys(chunkDataGraph).length, chunkDataGraph)} id={"branch" + keyCounter} visible="false" >
@@ -279,15 +281,15 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         return (
             <a-scene className="aframe_scene" light="defaultLightsEnabled: false" embedded>
                 <a-sky color="lightblue" />
-                <a-entity id="cameraContainer" position="0 2.5 0" look-controls="" wasd-controls="fly: true" custom-controls="" >
-                    <a-entity camera="">
+                <a-entity id="cameraContainer" position="0 2.5 0" look-controls wasd-controls="fly: true" custom-controls >
+                    <a-entity camera >
                         <a-cursor color="#282828" />
                         <a-light type="ambient" color="#EEE" intensity="0.7" position="0 0 0" />
                     </a-entity>
                 </a-entity>
                 <a-text look-at="#cameraContainer" position="0 -3 0"
                     value={
-                        "Scene: " + (this.state.rootIndex + 1) + "\\" + (this.state.possibleChunks + 1) + "\n"
+                        "Scene: " + (this.state.rootIndex + 1) + "\\" + this.state.possibleChunks + "\n"
                     }
                 ></a-text>
                 <a-light color="#da47da" position="0 8 0" type="ambient" />
