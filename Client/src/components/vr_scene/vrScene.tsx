@@ -7,7 +7,6 @@ import * as THREE from "three";
 import * as AFRAME from "aframe";
 import "aframe-event-set-component";
 import "aframe-look-at-component";
-import branchListener from "./aframeComponents/BranchEventListener";
 import rootListener from './aframeComponents/RootEventListener';
 import React, { Component } from "react";
 
@@ -26,10 +25,10 @@ interface IVRSceneStates {
     sceneContent: any[];
     rootIndex: number;
     possibleChunks: number;
+    currentChunkSize: number;
 }
 
 export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
-
     private rootChunkSize = 30;
 
     constructor(props: IVRSceneProps, states: IVRSceneStates) {
@@ -39,6 +38,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
             sceneContent: [],
             rootIndex: 0,
             possibleChunks: 0,
+            currentChunkSize: 0,
         };
     }
 
@@ -194,6 +194,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
 
     private addBranchInformation(branchInformation) {
         let information = "";
+
         for (let key in branchInformation) {
             if (branchInformation.hasOwnProperty(key)) {
                 let element = branchInformation[key];
@@ -219,7 +220,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         for (i = 0, j = branches.length; i < j; i += chunkSize) {
             chunkArray = branches.slice(i, i + chunkSize);
             iterator = 0;
-            y += 5;
+            y += Object.keys(branches[0].Information).length;
 
             chunkArray.map(branch => {
                 branchContent.push(
@@ -229,7 +230,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                         branchinformation={JSON.stringify(branch.Information)}
                         branch-listener
                     >
-                        <a-text value={branch.Name} align="center" look-at="#cameraContainer" position=" 1.7 0" scale="1.5 1.5 1" color="#282828" />
+                        <a-text value={branch.Name} align="center" look-at="#cameraContainer" position="0 1.5 0" scale="1.5 1.5 1" color="#282828" />
                         {this.addBranchInformation(branch.Information)}
                     </a-sphere >
                 )
@@ -242,7 +243,6 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
 
     private generateWorld() {
         let dataGraph = this.props.location.state.graph;
-        console.log(dataGraph);
         this.setState({ possibleChunks: Math.ceil(Object.keys(dataGraph).length / this.rootChunkSize) })
 
         let chunkDataGraph: { [key: string]: Array<Branch> } = {};
@@ -260,17 +260,27 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         for (let key in chunkDataGraph) {
             sceneContent.push(
                 <>
-                    <a-cylinder id={keyCounter} position={this.calculateRootPosition(keyCounter, Object.entries(chunkDataGraph).length, chunkDataGraph)} color="green" click-listener >
+                    <a-cylinder
+                        id={keyCounter}
+                        position={this.calculateRootPosition(keyCounter, Object.entries(chunkDataGraph).length, chunkDataGraph)}
+                        click-listener
+                        color="green"
+                    >
                         <a-text value={key} align="center" color="#282828" look-at="#cameraContainer" position="0 1.1 0" height="2" />
                     </a-cylinder>
-                    <a-entity color="grey" position={this.calculateRootPosition(keyCounter, Object.keys(chunkDataGraph).length, chunkDataGraph)} id={"branch" + keyCounter} visible="false" >
+                    <a-entity
+                        id={"branch" + keyCounter}
+                        position={this.calculateRootPosition(keyCounter, Object.keys(chunkDataGraph).length, chunkDataGraph)}
+                        visible="false"
+                        color="grey"
+                    >
                         {this.generateBranchObjects(chunkDataGraph[key])}
                     </a-entity>
                 </>
             );
             keyCounter += 1;
         }
-        this.setState({ sceneContent: sceneContent });
+        this.setState({ sceneContent: sceneContent, currentChunkSize: Object.keys(chunkDataGraph).length });
     }
 
     private renderWorld() {
@@ -286,12 +296,18 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                         <a-cursor color="#282828" />
                         <a-light type="ambient" color="#EEE" intensity="0.7" position="0 0 0" />
                     </a-entity>
+                    <a-text
+                        look-at="#cameraContainer"
+                        position="2 0 0"
+                        align="center"
+                        geometry="primitive:plane; width: auto; height: auto;"
+                        value={
+                            "Elements total: " + (Object.keys(this.props.location.state.graph).length) + "\n" +
+                            "Elements in this Scene: " + (Object.keys(this.state.currentChunkSize)) + "\n" +
+                            "Scene: " + (this.state.rootIndex + 1) + "\\" + this.state.possibleChunks + "\n"
+                        }
+                    />
                 </a-entity>
-                <a-text look-at="#cameraContainer" position="0 -3 0"
-                    value={
-                        "Scene: " + (this.state.rootIndex + 1) + "\\" + this.state.possibleChunks + "\n"
-                    }
-                ></a-text>
                 <a-light color="#da47da" position="0 8 0" type="ambient" />
 
                 {this.state.sceneContent.length > 0 && this.renderWorld()}

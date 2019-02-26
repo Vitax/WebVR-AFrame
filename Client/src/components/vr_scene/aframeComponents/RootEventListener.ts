@@ -25,7 +25,7 @@ export default AFRAME.registerComponent('click-listener', {
         }
 
         this.toggleVisible = (el: HTMLElement) => {
-            this.el.getAttribute('color') === 'green'
+            el.getAttribute('color') === 'green'
                 ? this.el.setAttribute('color', 'yellow')
                 : this.el.setAttribute('color', 'green');
 
