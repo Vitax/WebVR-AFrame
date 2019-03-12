@@ -4,9 +4,14 @@
     "description": "This Web-Application will visualize Data in a Virtual Environment",
     "main": "index.tsx",
     "scripts": {
-        "build": "webpack --watch",
-        "styles": "node-sass --watch --include-path scss ./src/stylesheets/scss/main.scss ./src/stylesheets/css/main.css",
-        "start": "concurrently \"npm run build\" \"npm run styles\""
+        "build-watch": "webpack --watch",
+        "styles-watch": "node-sass --watch --include-path scss ./src/stylesheets/scss/main.scss ./src/stylesheets/css/main.css",
+
+        "build": "webpack",
+        "styles-build": "node-sass --include-path scss ./src/stylesheets/scss/main.scss ./src/stylesheets/css/main.css",
+
+        "start-watch": "concurrently \"npm run build-watch\" \"npm run styles-watch\"",
+        "start-build": "concurrently \"npm run build\" \"npm run styles-build\""
     },
     "keywords": [
         "typescript",
