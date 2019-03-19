@@ -1,5 +1,12 @@
 @import "../../../node_modules/bootstrap/scss/bootstrap.scss";
 
+$font-size: 12px;
+
+html, body {
+    font-size: $font-size;
+    font-family: monospace;
+}
+
 .content_header {
     height: 50px;
     background: rgba(0,0,0,0.2);

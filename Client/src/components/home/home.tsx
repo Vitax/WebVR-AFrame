@@ -6,9 +6,9 @@
 import React, { Component } from "react";
 import { Col, Row } from "reactstrap";
 
-interface IHomeProps { }
+interface IHomeProps {}
 
-interface IHomeStates { }
+interface IHomeStates {}
 
 export class Home extends Component<IHomeProps, IHomeStates> {
     constructor(props: IHomeProps, states: IHomeStates) {
@@ -18,23 +18,37 @@ export class Home extends Component<IHomeProps, IHomeStates> {
     render() {
         return (
             <>
-                <Row>
-                    <Col md={12} xs={12} className="p-2">
-                        <h4 className="text-center">Information regarding the Application</h4>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md={6} xs={6}>
+                <Row className="p-4">
+                    <Col md={12} xs={12}>
+                        <h4>About the Application:</h4>
+                        <hr className="p-2"/>
+                        <p>This Application was developed as part of a Project for the University.</p>
                         <p>
-                            This application is able to load tsv, csv and json files and in the current state give you the options to select a main and secondary attribute. 
+                            It utilized the WebGL API of the Browser through the Framwork called
+                            <a href="https://aframe.io/" target="_blank">
+                                AFrame
+                            </a>
+                            .
                         </p>
-                        <br/>
                         <p>
-                            Further more you can define optional attributes named information fields, which will be shown on the secondary node.
+                            The goal of this Application is to visualize a unknown Dataset into a 3D space with a simple
+                            set of rules.
                         </p>
-                    </Col>
-                    <Col md={6} xs={6}>
-                        <span>Sample Images here</span>
+                        <p>
+                            The rules can be set under the <a href="/configuration">configuration</a> tab, after
+                            choosing a file which contains data. You are able to set the keys primary attribute,
+                            secondary attribute and information which gets displayed under the secondary attribute.
+                        </p>
+                        <p>In its current state you can use "tsv", "csv" and "json" files.</p>
+                        <p>If you are going to use a Json file, they currently need to be in this Format:</p>
+                        <div className="pt-2 pb-2">
+                            <img src="/assets/images/SampleJSON.png" />
+                        </div>
+                        <hr className="p-2"/>
+                        <h4>Sample generation by this Application: </h4>
+                        <div className="pt-2 pb-2">
+                            <img width="100%" src="/assets/images/3DVisualization.png" />
+                        </div>
                     </Col>
                 </Row>
             </>

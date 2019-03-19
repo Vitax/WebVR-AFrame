@@ -3,12 +3,14 @@
  */
 
 // Packages
+import React, { Component } from "react";
 import * as three from "three";
 import * as aframe from "aframe";
 import "aframe-event-set-component";
 import "aframe-look-at-component";
+
+// Modules / Components
 import rootListener from "./aframeComponents/RootEventListener";
-import React, { Component } from "react";
 
 // Models
 import { Branch } from "../../core/data_visualization/DataGraph";
@@ -257,7 +259,8 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         for (i = 0, j = branches.length; i < j; i += chunkSize) {
             chunkArray = branches.slice(i, i + chunkSize);
             iterator = 0;
-            y += Object.keys(branches[0].Information).length;
+            let branchContentSize = Object.keys(branches[0].Information).length;
+            y += branchContentSize != 0 ? branchContentSize : 1;
 
             chunkArray.map(branch => {
                 branchContent.push(

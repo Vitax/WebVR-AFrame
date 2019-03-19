@@ -1,4 +1,4 @@
-export default AFRAME.registerComponent("click-listener", {
+export const rootListener = AFRAME.registerComponent("click-listener", {
     schema: {
         default: "",
     },
@@ -72,7 +72,8 @@ export default AFRAME.registerComponent("click-listener", {
     },
     tick: function() {
         if (
-            (this.gamepad === undefined || this.gamepad === null) ||
+            this.gamepad === undefined ||
+            this.gamepad === null ||
             (this.target === null || this.target === undefined)
         ) {
             return;

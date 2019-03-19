@@ -1,24 +1,16 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "jsx": "react",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "noImplicitAny": false,
-    "noUnusedLocals": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "lib": [
-      "dom",
-      "es2017"
-    ]
-  },
-  "include": [
-    "node_modules/@types/**/*.d.ts",
-    "src/**/*.ts",
-  ],
-  "exclude": [
-    "node_modules",
-  ]
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "jsx": "react",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "noImplicitAny": false,
+        "noUnusedLocals": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "lib": ["dom", "es2017"]
+    },
+    "include": ["node_modules/@types/**/*.d.ts", "src/**/*"],
+    "exclude": ["node_modules"]
 }
