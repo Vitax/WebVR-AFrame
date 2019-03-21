@@ -57,7 +57,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
 
     // Register AFrame Components and Event Listeners
     private registerAFrameEventListeners() {
-        rootListener;
+        this.rootListener();
         this.customGamepadControls();
     }
 
@@ -65,6 +65,101 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
     private unregisterAFrameEventListeners() {
         delete aframe.components["click-listener"];
         delete aframe.components["custom-controls"];
+    }
+
+    private rootListener() {
+        AFRAME.registerComponent("click-listener", {
+            schema: {
+                default: "",
+            },
+            init: function() {
+                let cachedButton: any;
+                let camera = document.getElementById("cameraContainer");
+
+                this.buttonPressed = (button: any, hold: boolean): boolean => {
+                    let buttonState: boolean = false;
+
+                    if (hold) {
+                        if (button.pressed) buttonState = true;
+                    } else {
+                        if (button.pressed && cachedButton != button) {
+                            cachedButton = button;
+                            buttonState = true;
+                        } else if (!button.pressed && cachedButton == button) {
+                            cachedButton = null;
+                        }
+                    }
+
+                    return buttonState;
+                };
+
+                this.toggleVisible = function(el: HTMLElement) {
+                    let branchElement = document.getElementById("branch".concat(el.id));
+
+                    if (branchElement) {
+                        el.getAttribute("color") === "green"
+                            ? this.el.setAttribute("color", "yellow")
+                            : this.el.setAttribute("color", "green");
+
+                        branchElement.setAttribute(
+                            "visible",
+                            (!Boolean(branchElement.getAttribute("visible"))).toString()
+                        );
+                        branchElement.childNodes.forEach(branchNode => {
+                            if (
+                                (branchNode as any).getAttribute("color") == "red" &&
+                                branchNode.parentElement == branchElement
+                            ) {
+                                (branchNode as any).setAttribute("color", "orange");
+                                document.getElementById("infoInterface") &&
+                                    camera.removeChild(document.getElementById("infoInterface"));
+                            }
+                        });
+                    }
+                };
+
+                this.getGamepad = function() {
+                    let gamepads = navigator.getGamepads
+                        ? navigator.getGamepads()
+                        : (navigator as any).webkitGetGamepads
+                        ? (navigator as any).webkitGetGamepads()
+                        : [];
+                    if (gamepads[0]) {
+                        this.gamepad = gamepads[0];
+                    } else {
+                        this.gamepad = -1;
+                    }
+                };
+
+                this.el.addEventListener("mousedown", () => {
+                    this.toggleVisible(this.target);
+                });
+
+                this.el.addEventListener("raycaster-intersected", element => {
+                    this.target = element.target;
+                });
+
+                this.el.addEventListener("raycaster-intersected-cleared", () => {
+                    this.target = null;
+                });
+
+                window.addEventListener("gamepadconnected", () => {
+                    this.getGamepad();
+                });
+
+                window.addEventListener("gamepaddisconnected", () => {
+                    this.gamepad = -1;
+                });
+            },
+            tick: function() {
+                if (this.target === null || this.target === undefined) return;
+                if (this.gamepad === undefined) this.getGamepad();
+
+                if (this.gamepad.buttons !== undefined && this.buttonPressed(this.gamepad.buttons[0], false)) {
+                    this.toggleVisible(this.target);
+                }
+            },
+        });
     }
 
     private customGamepadControls() {
@@ -78,6 +173,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                 let cachedButton: any;
                 let rig = document.getElementById("rig") as any;
                 let camera = document.getElementById("camera") as any;
+                this.gamepad = -1;
 
                 this.position = new three.Vector3();
 
@@ -101,6 +197,16 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                     }
 
                     return buttonState;
+                };
+
+                this.switchScene = function(iterator: number) {
+                    let currentRootIndex = component.state.rootIndex;
+                    if (iterator > 0 && currentRootIndex < component.state.possibleChunks - 1) currentRootIndex++;
+                    if (iterator < 0 && currentRootIndex > 0) currentRootIndex--;
+
+                    component.setState({ rootIndex: currentRootIndex }, () => {
+                        component.generateWorld();
+                    });
                 };
 
                 this.walkForward = function(distance: number) {
@@ -158,11 +264,11 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                 });
 
                 window.addEventListener("gamepaddisconnected", () => {
-                    this.gamepad = null;
+                    this.gamepad = -1;
                 });
             },
             tick: function() {
-                if (this.gamepad == null || this.gamepad == undefined) return;
+                if (this.gamepad === -1) return;
 
                 /** left stick: x axes and camera x axes */
                 if (this.gamepad.axes[0].toFixed(3) > 0.2) {
@@ -187,22 +293,12 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                 if (this.buttonPressed(this.gamepad.buttons[4], true)) this.moveY(-0.3);
 
                 // change scenes
-                if (this.buttonPressed(this.gamepad.buttons[15], false)) {
-                    let currentRootIndex = component.state.rootIndex;
-                    if (currentRootIndex + 1 < component.state.possibleChunks) currentRootIndex++;
-
-                    component.setState({ rootIndex: currentRootIndex }, () => {
-                        component.generateWorld();
-                    });
+                if (this.buttonPressed(this.gamepad.buttons[12], false)) {
+                    this.switchScene(1);
                 }
 
-                if (this.buttonPressed(this.gamepad.buttons[14], false)) {
-                    let currentRootIndex = component.state.rootIndex;
-                    if (currentRootIndex > 0) currentRootIndex--;
-
-                    component.setState({ rootIndex: currentRootIndex }, () => {
-                        component.generateWorld();
-                    });
+                if (this.buttonPressed(this.gamepad.buttons[11], false)) {
+                    this.switchScene(-1);
                 }
             },
         });
@@ -243,7 +339,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
             }
         }
 
-        return <a-text value={information} color="#282828" align="center" position="0 -2 0" look-at="#rig" />;
+        return <a-text value={information} color="#282828" align="center" position="0 -1.5 0" look-at="#rig" />;
     }
 
     private generateBranchObjects(branches: Array<Branch>) {
@@ -260,7 +356,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
             chunkArray = branches.slice(i, i + chunkSize);
             iterator = 0;
             let branchContentSize = Object.keys(branches[0].Information).length;
-            y += branchContentSize != 0 ? branchContentSize : 1;
+            y += branchContentSize != 0 ? branchContentSize + 1 : 1;
 
             chunkArray.map(branch => {
                 branchContent.push(
@@ -313,13 +409,13 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                 <>
                     <a-cylinder
                         id={keyCounter}
+                        click-listener
+                        color="green"
                         position={this.calculateRootPosition(
                             keyCounter,
                             Object.entries(chunkDataGraph).length,
                             chunkDataGraph
                         )}
-                        click-listener
-                        color="green"
                     >
                         <a-text
                             value={key}
