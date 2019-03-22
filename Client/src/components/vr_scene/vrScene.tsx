@@ -478,24 +478,11 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                         <a-cursor color="#282828" scale="0.5 0.5 0.5" />
                         <a-light type="ambient" color="#EEE" intensity="0.7" position="0 0 0" />
                     </a-entity>
-                    {/*<a-text
+                    {<a-text
                         look-at="#rig"
-                        position="2 0 0"
+                        position="0 -2 0"
                         align="center" geometry="primitive:plane; width: auto; height: auto;"
-                        value={
-                            "Elements total: " +
-                            Object.keys(this.props.location.state.graph).length +
-                            "\n" +
-                            "Elements in this Scene: " +
-                            Object.keys(this.state.currentChunkSize) +
-                            "\n" +
-                            "Scene: " +
-                            (this.state.rootIndex + 1) +
-                            "\\" +
-                            this.state.possibleChunks +
-                            "\n"
-                        }
-                    />*/}
+                    />}
                 </a-entity>
                 <a-light color="#da47da" position="0 8 0" type="ambient" />
 

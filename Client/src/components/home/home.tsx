@@ -20,13 +20,25 @@ export class Home extends Component<IHomeProps, IHomeStates> {
             <>
                 <Row className="p-4">
                     <Col md={12} xs={12}>
+                        <h4>Controls</h4>
+                        <hr className="p-2" />
+                        <p>Keyboard controls are: </p>
+                        <p style={{ paddingLeft: "5rem" }}> wasd: camera movement</p>
+                        <p style={{ paddingLeft: "5rem" }}> q: prev scene, e: next scene</p>
+                        <p style={{ paddingLeft: "5rem" }}> z: move camera down, c: move camera up</p>
+                        <p>Gamepad controls meant for VR mode: </p>
+                        <p style={{ paddingLeft: "5rem" }}> joy stick: camera movement</p>
+                        <p style={{ paddingLeft: "5rem" }}> left analog: prev scene, right analog: next scene</p>
+                        <p style={{ paddingLeft: "5rem" }}> left shoulder: move camera down, right shoulder: move camera up </p>
+                        <h4 className="p-2" />
                         <h4>About the Application:</h4>
-                        <hr className="p-2"/>
+                        <hr className="p-2" />
                         <p>This Application was developed as part of a Project for the University.</p>
                         <p>
-                            It utilized the WebGL API of the Browser through the Framwork called
+                            It utilized the WebGL API of the Browser through the Framwork called{" "}
                             <a href="https://aframe.io/" target="_blank">
-                                AFrame
+                                {" "}
+                                AFrame{" "}
                             </a>
                             .
                         </p>
@@ -44,7 +56,7 @@ export class Home extends Component<IHomeProps, IHomeStates> {
                         <div className="pt-2 pb-2">
                             <img src="/assets/images/SampleJSON.png" />
                         </div>
-                        <hr className="p-2"/>
+                        <hr className="p-2" />
                         <h4>Sample generation by this Application: </h4>
                         <div className="pt-2 pb-2">
                             <img width="100%" src="/assets/images/3DVisualization.png" />
