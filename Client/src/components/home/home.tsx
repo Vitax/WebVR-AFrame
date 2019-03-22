@@ -22,14 +22,18 @@ export class Home extends Component<IHomeProps, IHomeStates> {
                     <Col md={12} xs={12}>
                         <h4>Controls</h4>
                         <hr className="p-2" />
-                        <p>Keyboard controls are: </p>
+                        <p>Keyboard controls: </p>
                         <p style={{ paddingLeft: "5rem" }}> wasd: camera movement</p>
                         <p style={{ paddingLeft: "5rem" }}> q: prev scene, e: next scene</p>
                         <p style={{ paddingLeft: "5rem" }}> z: move camera down, c: move camera up</p>
+                        <p>Mouse controls: </p>
+                        <p style={{ paddingLeft: "5rem" }}> click and drag: pan camera</p>
+                        <p style={{ paddingLeft: "5rem" }}> right click: root nodes will display children</p>
                         <p>Gamepad controls meant for VR mode: </p>
                         <p style={{ paddingLeft: "5rem" }}> joy stick: camera movement</p>
                         <p style={{ paddingLeft: "5rem" }}> left analog: prev scene, right analog: next scene</p>
                         <p style={{ paddingLeft: "5rem" }}> left shoulder: move camera down, right shoulder: move camera up </p>
+                        <p style={{ paddingLeft: "5rem" }}> x(ps4) or a(xbox): root nodes will display children</p>
                         <h4 className="p-2" />
                         <h4>About the Application:</h4>
                         <hr className="p-2" />
