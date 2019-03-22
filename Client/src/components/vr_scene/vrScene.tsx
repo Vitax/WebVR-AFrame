@@ -266,6 +266,26 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
                 window.addEventListener("gamepaddisconnected", () => {
                     this.gamepad = -1;
                 });
+
+                window.addEventListener("keyup", event => {
+                    if (event.keyCode === 81) {
+                        this.switchScene(-1);
+                    }
+
+                    if (event.keyCode === 69) {
+                        this.switchScene(1);
+                    }
+                });
+
+                window.addEventListener("keydown", event => {
+                    if (event.keyCode === 67) {
+                        this.moveY(0.3);
+                    }
+
+                    if (event.keyCode == 90) {
+                        this.moveY(-0.3);
+                    }
+                });
             },
             tick: function() {
                 if (this.gamepad === -1) return;
@@ -453,7 +473,7 @@ export class VRScene extends Component<IVRSceneProps, IVRSceneStates> {
         return (
             <a-scene className="aframe_scene" light="defaultLightsEnabled: false" embedded>
                 <a-sky color="lightblue" />
-                <a-entity id="rig" position="0 2.5 0" wasd-controls="fly: true" custom-controls>
+                <a-entity id="rig" position="0 2.5 0" wasd-controls="fly: true; acceleration: 250;" custom-controls>
                     <a-entity id="camera" camera="fov: 75" look-controls>
                         <a-cursor color="#282828" scale="0.5 0.5 0.5" />
                         <a-light type="ambient" color="#EEE" intensity="0.7" position="0 0 0" />
